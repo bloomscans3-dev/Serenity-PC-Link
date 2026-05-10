@@ -344,11 +344,27 @@ async function readClip(){
   }catch(e){console.error(e)}
 }
 
+async function syncClipboard() {
+  // 1. PC -> Mobile (Leer lo que la PC copió)
+  try {
+    const r = await window.fetch(FIREBASE_URL + "/clipboard/pc.json");
+    const txt = await r.json();
+    if(txt && txt !== $("clip-text").value && document.activeElement !== $("clip-text")) {
+      $("clip-text").value = txt;
+    }
+  } catch(e) {}
+}
+
 async function writeClip(){
   const txt=$("clip-text").value;
   try{
-    await fetch(BASE+"/clipboard",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:txt})});
-    addMsg("Texto copiado al portapapeles de la PC","sys");
+    // Escribir en Firebase para que la PC lo recoja
+    await window.fetch(FIREBASE_URL + "/clipboard/mobile.json", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(txt)
+    });
+    showToast("Enviado al portapapeles de la PC");
   }catch(e){console.error(e)}
 }
 
