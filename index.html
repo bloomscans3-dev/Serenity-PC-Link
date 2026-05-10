@@ -188,6 +188,7 @@ window.fetch = async function() {
   
   if(typeof resource === 'string' && !resource.startsWith(FIREBASE_URL)) {
     config.headers["X-PIN"] = PIN;
+    config.headers["ngrok-skip-browser-warning"] = "69420";
   }
   
   const res = await originalFetch(resource, config);
