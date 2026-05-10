@@ -105,9 +105,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <button class="btn btn-off" data-when="on" onclick="doAction('shutdown')"><span class="ico">&#9211;</span>Apagar</button>
     <button class="btn" data-when="on" onclick="doAction('lock')"><span class="ico">&#128274;</span>Bloquear</button>
     <button class="btn" data-when="locked" onclick="doAction('unlock')" style="border-color:rgba(0,229,255,.2);background:rgba(0,229,255,.06)"><span class="ico">&#128275;</span>Desbloquear</button>
-    <button class="btn btn-shortcuts" data-when="on" onclick="$('modal-shortcuts').style.display='flex'"><span class="ico">&#9000;</span>Atajos</button>
+    <button class="btn" data-when="on" onclick="doAction('minimize_all')"><span class="ico">&#128377;</span>Minimizar</button>
+    <button class="btn" data-when="on" onclick="doAction('volume_mute')"><span class="ico">&#128263;</span>Silenciar</button>
     <button class="btn" data-when="on" onclick="showScreen()"><span class="ico">&#128250;</span>Pantalla</button>
     <button class="btn" data-when="on" onclick="showProcs()"><span class="ico">&#128187;</span>Procesos</button>
+    <button class="btn btn-shortcuts" data-when="on" onclick="$('modal-shortcuts').style.display='flex'"><span class="ico">&#9881;</span>Más</button>
   </div>
   
   <div style="margin-top:15px; display:flex; align-items:center; gap:10px;" data-when="on">
@@ -344,9 +346,9 @@ async function uploadFile(){
 
 async function readClip(){
   try{
-    const r=await fetch(BASE+"/clipboard");
+    const r=await window.fetch(FIREBASE_URL + "/clipboard/pc.json");
     const d=await r.json();
-    $("clip-text").value=d.text;
+    $("clip-text").value=d||"";
   }catch(e){console.error(e)}
 }
 
@@ -379,8 +381,13 @@ function showScreen() {
   loadScreen();
 }
 
-function loadScreen() {
-  $("screen-img").src = BASE + "/screenshot?t=" + new Date().getTime();
+async function loadScreen() {
+  $("screen-img").alt = "Cargando...";
+  try {
+    const r = await fetch(BASE + "/screenshot?t=" + new Date().getTime());
+    const blob = await r.blob();
+    $("screen-img").src = URL.createObjectURL(blob);
+  } catch(e) { $("screen-img").alt = "Error al cargar"; }
 }
 
 async function showProcs() {
