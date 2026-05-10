@@ -187,7 +187,9 @@ window.fetch = async function() {
   if(!config.headers) config.headers = {};
   
   if(typeof resource === 'string' && !resource.startsWith(FIREBASE_URL)) {
-    config.headers["X-PIN"] = PIN;
+    // Append PIN as query param (ngrok strips custom headers)
+    const sep = resource.includes('?') ? '&' : '?';
+    resource = resource + sep + 'pin=' + PIN;
     config.headers["ngrok-skip-browser-warning"] = "69420";
   }
   
